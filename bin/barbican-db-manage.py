@@ -3,9 +3,82 @@
 
 import os
 import sys
+import argparse
+
 sys.path.insert(0, os.getcwd())
 
-from barbican.model.migration.commands import main
+from barbican.model.migration import commands
+
+class DatabaseManager:
+    """
+    Builds and executes a CLI parser to manage the Barbican database,
+    using Alembic commands.
+    """
+
+    def __init__(self):
+        self.parser = self.get_main_parser()
+        self.subparsers = self.parser.add_subparsers(title='subcommands',
+                                                     description=
+                                                     'Action to perform')
+        self.add_revision_args()
+        self.add_downgrade_args()
+
+    def get_main_parser(self):
+        """Create top-level parser and arguments."""
+        parser = argparse.ArgumentParser(description='Barbican DB manager.')
+        parser.add_argument('--dburl', '-d', default=None,
+                             help='URL to the database)')
+
+        return parser
+
+    def add_revision_args(self):
+        """Create 'revision' command parser and arguments."""
+        create_parser = self.subparsers.add_parser('revision', help='Create a '
+                                                   'new DB version file.')
+        create_parser.add_argument('--message', '-m', default='DB change',
+                                   help='the message for the DB change')
+        create_parser.add_argument('--autogenerate',
+                                   help='autogenerate from models',
+                                   action='store_true')
+        create_parser.set_defaults(func=self.revision)
+
+    def add_downgrade_args(self):
+        """Create 'downgrade' command parser and arguments."""
+        create_parser = self.subparsers.add_parser('downgrade',
+                                                   help='Downgrade to a '
+                                                   'previous DB '
+                                                   'version file.')
+        create_parser.add_argument('--version', '-v', default='need version',
+                                   help='the version to downgrade back to.')
+        create_parser.set_defaults(func=self.downgrade)
+
+    def revision(self, args):
+        """Process the 'revision' Alembic command."""
+        print 'message:',args.message
+        print 'auto:',args.autogenerate
+        commands.generate(autogenerate=args.autogenerate,
+                          message=args.message,
+                          sql_url=args.dburl)
+
+    def downgrade(self, args):
+        """Process the 'downgrade' Alembic command."""
+        print 'version:',args.version
+        commands.downgrade(to_version=args.version,
+                           sql_url=args.dburl)
+
+    def execute(self):
+        """Parse the command line arguments."""
+        args = self.parser.parse_args()
+
+        # Perform other setup here...
+
+        args.func(args)
 
 
-main()
+def main():
+    dm = DatabaseManager()
+    dm.execute()
+
+
+if __name__ == '__main__':
+    main()
