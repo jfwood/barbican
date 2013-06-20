@@ -32,7 +32,9 @@ def get_or_create_tenant(keystone_id, tenant_repo):
     """
     tenant = tenant_repo.find_by_keystone_id(keystone_id,
                                              suppress_exception=True)
+    print 'tenant?:',keystone_id
     if not tenant:
+        print 'new tenant:',keystone_id
         LOG.debug('Creating tenant for {0}'.format(keystone_id))
         tenant = models.Tenant()
         tenant.keystone_id = keystone_id
@@ -47,10 +49,12 @@ def create_secret(data, tenant, crypto_manager,
     """
     Common business logic to create a secret.
     """
-    time_keeper = utils.TimeKeeper('Create Secret Resource')
+    #time_keeper = utils.TimeKeeper('Create Secret Resource')
     new_secret = models.Secret(data)
-    time_keeper.mark('after Secret model create')
+    #time_keeper.mark('after Secret model create')
     new_datum = None
+    LOG.error('lljljljljljlkj')
+    print 'popopopo'
 
     if 'plain_text' in data:
 
@@ -63,39 +67,42 @@ def create_secret(data, tenant, crypto_manager,
         new_datum = crypto_manager.encrypt(data['plain_text'],
                                            new_secret,
                                            tenant)
-        time_keeper.mark('after encrypt')
+        #time_keeper.mark('after encrypt')
 
     elif ok_to_generate:
+        print 'popopopo 2'
         LOG.debug('Generating new secret...')
 
         # TODO: Generate a good key
         new_datum = crypto_manager.generate_data_encryption_key(new_secret,
                                                                 tenant)
-        time_keeper.mark('after secret generate')
+        #time_keeper.mark('after secret generate')
 
     else:
+        print 'popopopo 3'
         LOG.debug('Creating metadata only for the new secret. '
                   'A subsequent PUT is required')
         crypto_manager.supports(new_secret, tenant)
-        time_keeper.mark('after supports check')
+        #time_keeper.mark('after supports check')
 
     # Create Secret entities in datastore.
+        print 'popopopo 4'
     secret_repo.create_from(new_secret)
-    time_keeper.mark('after Secret datastore create')
+    #time_keeper.mark('after Secret datastore create')
     new_assoc = models.TenantSecret()
-    time_keeper.mark('after TenantSecret model create')
+    #time_keeper.mark('after TenantSecret model create')
     new_assoc.tenant_id = tenant.id
     new_assoc.secret_id = new_secret.id
     new_assoc.role = "admin"
     new_assoc.status = models.States.ACTIVE
     tenant_secret_repo.create_from(new_assoc)
-    time_keeper.mark('after TenantSecret datastore create')
+    #time_keeper.mark('after TenantSecret datastore create')
     if new_datum:
         new_datum.secret_id = new_secret.id
         datum_repo.create_from(new_datum)
-        time_keeper.mark('after Datum datastore create')
+        #time_keeper.mark('after Datum datastore create')
 
-    time_keeper.dump()
+    #time_keeper.dump()
 
     return new_secret
 

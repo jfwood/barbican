@@ -111,6 +111,10 @@ class Forbidden(BarbicanException):
     message = _("You are not authorized to complete this action.")
 
 
+class NotSupported(BarbicanException):
+    message = _("Operation is not supported.")
+
+
 class ForbiddenPublicImage(Forbidden):
     message = _("You are not authorized to complete this action.")
 
