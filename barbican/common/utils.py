@@ -17,6 +17,7 @@
 Common utilities for Barbican.
 """
 
+import time
 from oslo.config import cfg
 import barbican.openstack.common.log as logging
 
@@ -51,3 +52,30 @@ def hostname_for_refs(keystone_id=None, resource=None):
 #   error.
 def getLogger(name):
     return logging.getLogger(name)
+
+
+class TimeKeeper(object):
+
+    def __init__(self, name, logger = None):
+        self.logger = logger or getLogger(__name__)
+        self.name = name
+        self.time_start = time.time()
+        self.time_last = self.time_start
+        self.elapsed = []
+
+    def mark(self, note=None):
+        time_curr = time.time()
+        self.elapsed.append((time_curr, time_curr - self.time_last, note))
+        self.time_last = time_curr
+
+    def dump(self):
+        self.logger.debug("Timing output for '{0}'".format(self.name))
+        for timec, timed, note in self.elapsed:
+            self.logger.debug("    time current/elapsed/notes:"
+                         "{0:.3f}/{1:.0f}/{2}".format(timec, timed*1000.,
+                                                        note))
+        time_current = time.time()
+        total_elapsed = time_current - self.time_start
+        self.logger.debug("    Final time/elapsed:"
+                          "{0:.3f}/{1:.0f}".format(time_current,
+                                                   total_elapsed*1000.))
