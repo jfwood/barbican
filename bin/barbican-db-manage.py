@@ -22,6 +22,7 @@ class DatabaseManager:
                                                      'Action to perform')
         self.add_revision_args()
         self.add_downgrade_args()
+        self.add_upgrade_args()
 
     def get_main_parser(self):
         """Create top-level parser and arguments."""
@@ -42,6 +43,17 @@ class DatabaseManager:
                                    action='store_true')
         create_parser.set_defaults(func=self.revision)
 
+    def add_upgrade_args(self):
+        """Create 'upgrade' command parser and arguments."""
+        create_parser = self.subparsers.add_parser('upgrade',
+                                                   help='Upgrade to a '
+                                                   'future version DB '
+                                                   'version file')
+        create_parser.add_argument('--version', '-v', default='head',
+                                   help='the version to upgrade to, or else '
+                                        'the latest/head if not specified.')
+        create_parser.set_defaults(func=self.upgrade)
+
     def add_downgrade_args(self):
         """Create 'downgrade' command parser and arguments."""
         create_parser = self.subparsers.add_parser('downgrade',
@@ -54,15 +66,17 @@ class DatabaseManager:
 
     def revision(self, args):
         """Process the 'revision' Alembic command."""
-        print 'message:',args.message
-        print 'auto:',args.autogenerate
         commands.generate(autogenerate=args.autogenerate,
                           message=args.message,
                           sql_url=args.dburl)
 
+    def upgrade(self, args):
+        """Process the 'upgrade' Alembic command."""
+        commands.upgrade(to_version=args.version,
+                         sql_url=args.dburl)
+
     def downgrade(self, args):
         """Process the 'downgrade' Alembic command."""
-        print 'version:',args.version
         commands.downgrade(to_version=args.version,
                            sql_url=args.dburl)
 
