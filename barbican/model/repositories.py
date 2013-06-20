@@ -267,7 +267,7 @@ class BaseRepo(object):
 
     def create_from(self, entity):
         """Sub-class hook: create from entity."""
-        start = time.time() # DEBUG
+        start = time.time()  # DEBUG
         if not entity:
             msg = "Must supply non-None {0}.".format(self._do_entity_name)
             raise exception.Invalid(msg)
@@ -295,7 +295,8 @@ class BaseRepo(object):
                 LOG.exception('Problem saving entity for create')
                 raise exception.Duplicate("Entity ID %s already exists!"
                                           % values['id'])
-        LOG.debug('Elapsed repo create secret:{0}'.format(time.time() - start))  # DEBUG
+        LOG.debug('Elapsed repo '
+                  'create secret:{0}'.format(time.time() - start))  # DEBUG
 
         return entity
 

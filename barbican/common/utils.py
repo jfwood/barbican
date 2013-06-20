@@ -55,8 +55,12 @@ def getLogger(name):
 
 
 class TimeKeeper(object):
+    """
+    Keeps track of elapsed times and then allows for dumping a smmary to
+    logs. This class can be used to profile a method as a fine grain level.
+    """
 
-    def __init__(self, name, logger = None):
+    def __init__(self, name, logger=None):
         self.logger = logger or getLogger(__name__)
         self.name = name
         self.time_start = time.time()
@@ -64,18 +68,28 @@ class TimeKeeper(object):
         self.elapsed = []
 
     def mark(self, note=None):
+        """
+        Mark a moment in time, with an optional note as to what is
+        occurring at the time.
+        :param note: Optional note
+        """
+
         time_curr = time.time()
         self.elapsed.append((time_curr, time_curr - self.time_last, note))
         self.time_last = time_curr
 
     def dump(self):
+        """
+        Dump the elapsed time(s) to log.
+        """
         self.logger.debug("Timing output for '{0}'".format(self.name))
         for timec, timed, note in self.elapsed:
             self.logger.debug("    time current/elapsed/notes:"
-                         "{0:.3f}/{1:.0f}/{2}".format(timec, timed*1000.,
-                                                        note))
+                              "{0:.3f}/{1:.0f}/{2}".format(timec,
+                                                           timed * 1000.,
+                                                           note))
         time_current = time.time()
         total_elapsed = time_current - self.time_start
         self.logger.debug("    Final time/elapsed:"
                           "{0:.3f}/{1:.0f}".format(time_current,
-                                                   total_elapsed*1000.))
+                                                   total_elapsed * 1000.))
