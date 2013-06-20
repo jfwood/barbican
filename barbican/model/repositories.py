@@ -141,17 +141,8 @@ def get_engine():
             LOG.info(_('auto-creating barbican registry DB'))
             models.register_models(_ENGINE)
 
+            # Upgrade the database to the latest version.
             commands.upgrade()
-            #alembic_cfg = Config("/Users/john
-            # .wood/projects/security/barbican/alembic.ini")
-            # command.stamp(alembic_cfg, "head")
-            #command.upgrade(alembic_cfg, "head")
-
-#TODO:      try:
-#TODO:          migration.version_control()
-#TODO:      except exception.DatabaseMigrationError:
-#TODO:          # only arises when the DB exists and is under version control
-#TODO:          pass
         else:
             LOG.info(_('not auto-creating barbican registry DB'))
 
