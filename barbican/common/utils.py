@@ -66,7 +66,6 @@ class TimeKeeper(object):
         self.time_start = time.time()
         self.time_last = self.time_start
         self.elapsed = []
-        print '....init...',name
 
     def mark(self, note=None):
         """
@@ -77,7 +76,6 @@ class TimeKeeper(object):
         time_curr = time.time()
         self.elapsed.append((time_curr, time_curr - self.time_last, note))
         self.time_last = time_curr
-        print '....init...',note
 
     def dump(self):
         """

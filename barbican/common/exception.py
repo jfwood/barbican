@@ -268,6 +268,11 @@ class InvalidObject(BarbicanException):
                 "'%(schema)s': %(reason)s")
 
 
+class UnsupportedField(BarbicanException):
+    message = _("No support for value set on field '%(field)s' on "
+                "schema '%(schema)s': %(reason)s")
+
+
 class UnsupportedHeaderFeature(BarbicanException):
     message = _("Provided header feature is unsupported: %(feature)s")
 

@@ -180,21 +180,15 @@ class NewOrderValidator(ValidatorBase):
         # Validation secret generation related fields.
         # TODO: Invoke the crypto plugin for this purpose
         if secret.get('algorithm') != 'aes':
-            raise exception.NotSupported(schema=schema_name,
-                                         reason=_("The only 'algorithm' "
-                                                   "selection supported now "
-                                                   "is 'aes'"))
-        if secret.get('cypher_type') != 'cbc':
-            raise exception.NotSupported(schema=schema_name,
-                                         reason=_("The only 'cypher_type' "
-                                                   "selection supported now "
-                                                   "is 'cbc'"))
+            raise exception.UnsupportedField(field="algorithm",
+                                             schema=schema_name,
+                                             reason=_("Only 'aes' "
+                                                      "supported"))
         bit_length = int(secret.get('bit_length', 0))
         if not bit_length in (128, 192, 256):
-            raise exception.NotSupported(schema=schema_name,
-                                         reason=_("The only 'bit_length' "
-                                                   "selections supported now "
-                                                   "are one of 128, 192, "
-                                                   "or 256"))
+            raise exception.UnsupportedField(field="bit_length",
+                                             schema=schema_name,
+                                             reason=_("Must be one of 128, "
+                                                      "192, or 256"))
 
         return json_data
